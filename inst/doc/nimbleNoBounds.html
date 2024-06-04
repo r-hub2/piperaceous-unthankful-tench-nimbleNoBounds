@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>A quick guide to nimbleNoBounds</title>
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+
+
+<style type="text/css">
+  code {
+    white-space: pre;
+  }
+  .sourceCode {
+    overflow: visible;
+  }
+</style>
+<style type="text/css" data-origin="pandoc">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(title);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">A quick guide to <code>nimbleNoBounds</code></h1>
+
+
+
+<!-- Add this vignette to the documentation via roxygen2::roxygenise() and  R CMD build -->
+<!-- setwd("/home/pleydell/nimbleProject/nimble-snippets/nimbleAPT"); roxygen2::roxygenise() -->
+<p>This vignette assumes the reader is already familiar with using <a href="https://r-nimble.org/">NIMBLE</a> to perform Markov chain Monte Carlo (MCMC).</p>
+<p>The principal motivation of this package is that bounds on prior distributions can impair MCMC performance when posterior distributions are located close to those bounds. In particular, when using Metropolis-Hastings, proposals made beyond the known bounds of a distribution will inflate rejection rates. Moreover, in adaptive Metropolis-Hastings, such increased rejection rates will lead to shrinking the Metropolis-Hastings kernel, thereby increasing the auto-correlation in the accepted samples and reducing the effective sample size. The result can therefore be reduced MCMC efficiency.</p>
+<p>This package offers a simple solution to avoid this scenario. Common bounded probability distributions (beta, uniform, exponential, gamma, chi-squared, half-flat, inverse-gamma, log-normal, Weibull) are transformed, via log or logit transformations, to the unbounded real line. The change of variables technique is used to obtain the transformed distributions. The resulting distributions are provided here for use in NIMBLE models.</p>
+<p>In this vignette we explore the potential efficiency gains with a simple toy example.</p>
+<div id="distributions-included-in-nimblenobounds" class="section level1">
+<h1>Distributions included in <code>nimbleNoBounds</code></h1>
+<p>The following transformed distributions are available.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Transform</th>
+<th>Distribution</th>
+<th>Corresponding R function</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>dLogChisq</code></td>
+<td>Log</td>
+<td>Chi-squared</td>
+<td><code>dchisq</code></td>
+</tr>
+<tr class="even">
+<td><code>dLogExp</code></td>
+<td>Log</td>
+<td>Exponential</td>
+<td><code>dexp</code></td>
+</tr>
+<tr class="odd">
+<td><code>dLogGamma</code></td>
+<td>Log</td>
+<td>Gamma</td>
+<td><code>dgamma</code></td>
+</tr>
+<tr class="even">
+<td><code>dLogHalfflat</code></td>
+<td>Log</td>
+<td>Half-flat</td>
+<td><code>dhalfflat</code></td>
+</tr>
+<tr class="odd">
+<td><code>dLogInvgamma</code></td>
+<td>Log</td>
+<td>Inverse-gamma</td>
+<td><code>dinvgamma</code></td>
+</tr>
+<tr class="even">
+<td><code>dLogLnorm</code></td>
+<td>Log</td>
+<td>Log-normal</td>
+<td><code>dlnorm</code></td>
+</tr>
+<tr class="odd">
+<td><code>dLogWeib</code></td>
+<td>Log</td>
+<td>Weibull</td>
+<td><code>dweib</code></td>
+</tr>
+<tr class="even">
+<td><code>dLogitBeta</code></td>
+<td>Logit</td>
+<td>Beta</td>
+<td><code>dbeta</code></td>
+</tr>
+<tr class="odd">
+<td><code>dLogitUnif</code></td>
+<td>Logit</td>
+<td>Uniform</td>
+<td><code>dunif</code></td>
+</tr>
+</tbody>
+</table>
+<p>Note: the naming convention is <code>d[Transform][Distribution]</code>. Only <code>d</code> and <code>r</code> functions have been provided. I do not plan to add <code>p</code> or <code>q</code> functions, but am open to collaboration if somebody else is motivated to add them.</p>
+</div>
+<div id="toy-example" class="section level1">
+<h1>Toy example</h1>
+<p>The following toy problem compares sampling of bounded and unbounded distributions.</p>
+<p>First, we create NIMBLE models with both classical bounded distributions, and with unbounded transformed equivalents.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" title="1"><span class="kw">library</span>(nimbleNoBounds) <span class="co"># Also loads nimble</span></a>
+<a class="sourceLine" id="cb1-2" title="2"><span class="kw">library</span>(coda)           <span class="co"># For MCMC diagnostics</span></a>
+<a class="sourceLine" id="cb1-3" title="3"></a>
+<a class="sourceLine" id="cb1-4" title="4"><span class="co">## Model with bounded priors</span></a>
+<a class="sourceLine" id="cb1-5" title="5">boundedDistributionsModel &lt;-<span class="st"> </span><span class="kw">nimbleCode</span>({</a>
+<a class="sourceLine" id="cb1-6" title="6">  b  <span class="op">~</span><span class="st"> </span><span class="kw">dbeta</span>(b1, b2)</a>
+<a class="sourceLine" id="cb1-7" title="7">  c  <span class="op">~</span><span class="st"> </span><span class="kw">dchisq</span>(c1)</a>
+<a class="sourceLine" id="cb1-8" title="8">  e  <span class="op">~</span><span class="st"> </span><span class="kw">dexp</span>(e1)</a>
+<a class="sourceLine" id="cb1-9" title="9">  g  <span class="op">~</span><span class="st"> </span><span class="kw">dgamma</span>(g1, g2)</a>
+<a class="sourceLine" id="cb1-10" title="10">  ig <span class="op">~</span><span class="st"> </span><span class="kw">dinvgamma</span>(i1, i2)</a>
+<a class="sourceLine" id="cb1-11" title="11">  l  <span class="op">~</span><span class="st"> </span><span class="kw">dlnorm</span>(l1, l2)</a>
+<a class="sourceLine" id="cb1-12" title="12">  u  <span class="op">~</span><span class="st"> </span><span class="kw">dunif</span>(u1, u2)</a>
+<a class="sourceLine" id="cb1-13" title="13">  w  <span class="op">~</span><span class="st"> </span><span class="kw">dweib</span>(w1, w2)</a>
+<a class="sourceLine" id="cb1-14" title="14">})</a>
+<a class="sourceLine" id="cb1-15" title="15"></a>
+<a class="sourceLine" id="cb1-16" title="16"><span class="co">## Model with unbounded priors</span></a>
+<a class="sourceLine" id="cb1-17" title="17">unboundedDistributionsModel &lt;-<span class="st"> </span><span class="kw">nimbleCode</span>({</a>
+<a class="sourceLine" id="cb1-18" title="18">  <span class="co">## Priors transformed to real line</span></a>
+<a class="sourceLine" id="cb1-19" title="19">  tb  <span class="op">~</span><span class="st"> </span><span class="kw">dLogitBeta</span>(b1, b2)</a>
+<a class="sourceLine" id="cb1-20" title="20">  tc  <span class="op">~</span><span class="st"> </span><span class="kw">dLogChisq</span>(c1)</a>
+<a class="sourceLine" id="cb1-21" title="21">  te  <span class="op">~</span><span class="st"> </span><span class="kw">dLogExp</span>(e1)</a>
+<a class="sourceLine" id="cb1-22" title="22">  tg  <span class="op">~</span><span class="st"> </span><span class="kw">dLogGamma</span>(g1, g2)</a>
+<a class="sourceLine" id="cb1-23" title="23">  tig <span class="op">~</span><span class="st"> </span><span class="kw">dLogInvgamma</span>(i1, i2)</a>
+<a class="sourceLine" id="cb1-24" title="24">  tl  <span class="op">~</span><span class="st"> </span><span class="kw">dLogLnorm</span>(l1, l2)</a>
+<a class="sourceLine" id="cb1-25" title="25">  tu  <span class="op">~</span><span class="st"> </span><span class="kw">dLogitUnif</span>(u1, u2)</a>
+<a class="sourceLine" id="cb1-26" title="26">  tw  <span class="op">~</span><span class="st"> </span><span class="kw">dLogWeib</span>(w1, w2)</a>
+<a class="sourceLine" id="cb1-27" title="27">  <span class="co">## Back-transformations</span></a>
+<a class="sourceLine" id="cb1-28" title="28">  b  &lt;-<span class="st"> </span><span class="kw">ilogit</span>(tb)</a>
+<a class="sourceLine" id="cb1-29" title="29">  c  &lt;-<span class="st"> </span><span class="kw">exp</span>(tc)</a>
+<a class="sourceLine" id="cb1-30" title="30">  e  &lt;-<span class="st"> </span><span class="kw">exp</span>(te)</a>
+<a class="sourceLine" id="cb1-31" title="31">  g  &lt;-<span class="st"> </span><span class="kw">exp</span>(tg)</a>
+<a class="sourceLine" id="cb1-32" title="32">  ig &lt;-<span class="st"> </span><span class="kw">exp</span>(tig) <span class="co">## Currently doesn&#39;t compile if a node is called &quot;i&quot;</span></a>
+<a class="sourceLine" id="cb1-33" title="33">  l  &lt;-<span class="st"> </span><span class="kw">exp</span>(tl)</a>
+<a class="sourceLine" id="cb1-34" title="34">  u  &lt;-<span class="st"> </span><span class="kw">ilogit</span>(tu)<span class="op">*</span>(u2<span class="op">-</span>u1)<span class="op">+</span>u1 <span class="co">## Scaled and shifted output from ilogit transformation</span></a>
+<a class="sourceLine" id="cb1-35" title="35">  w  &lt;-<span class="st"> </span><span class="kw">exp</span>(tw)</a>
+<a class="sourceLine" id="cb1-36" title="36">})</a>
+<a class="sourceLine" id="cb1-37" title="37"></a>
+<a class="sourceLine" id="cb1-38" title="38"><span class="co">## List of (fixed) parameters</span></a>
+<a class="sourceLine" id="cb1-39" title="39">const =<span class="st"> </span><span class="kw">list</span>(</a>
+<a class="sourceLine" id="cb1-40" title="40">  <span class="dt">b1=</span><span class="dv">1</span>   , <span class="dt">b2=</span><span class="dv">11</span>,     <span class="co">## Beta</span></a>
+<a class="sourceLine" id="cb1-41" title="41">  <span class="dt">c1=</span><span class="dv">2</span>   ,            <span class="co">## Chi-squared</span></a>
+<a class="sourceLine" id="cb1-42" title="42">  <span class="dt">i1=</span><span class="fl">2.5</span> , <span class="dt">i2=</span><span class="fl">0.01</span>,   <span class="co">## Inverse-gamma</span></a>
+<a class="sourceLine" id="cb1-43" title="43">  <span class="dt">u1=</span><span class="op">-</span><span class="dv">6</span>  , <span class="dt">u2=</span><span class="dv">66</span>,     <span class="co">## Uniform</span></a>
+<a class="sourceLine" id="cb1-44" title="44">  <span class="dt">e1=</span><span class="fl">0.1</span> ,            <span class="co">## Exponential</span></a>
+<a class="sourceLine" id="cb1-45" title="45">  <span class="dt">g1=</span><span class="fl">0.1</span> , <span class="dt">g2=</span><span class="dv">10</span>,     <span class="co">## Gamma</span></a>
+<a class="sourceLine" id="cb1-46" title="46">  <span class="dt">l1=</span><span class="op">-</span><span class="dv">3</span>  , <span class="dt">l2=</span><span class="fl">0.1</span>,    <span class="co">## Log-normal</span></a>
+<a class="sourceLine" id="cb1-47" title="47">  <span class="dt">w1=</span><span class="dv">2</span>   , <span class="dt">w2=</span><span class="dv">2</span>       <span class="co">## Weibull</span></a>
+<a class="sourceLine" id="cb1-48" title="48">)</a>
+<a class="sourceLine" id="cb1-49" title="49"></a>
+<a class="sourceLine" id="cb1-50" title="50"><span class="co">## Build and compile models</span></a>
+<a class="sourceLine" id="cb1-51" title="51">rBounded   &lt;-<span class="st"> </span><span class="kw">nimbleModel</span>(boundedDistributionsModel, <span class="dt">constants=</span>const)</a>
+<a class="sourceLine" id="cb1-52" title="52">rUnbounded &lt;-<span class="st"> </span><span class="kw">nimbleModel</span>(unboundedDistributionsModel, <span class="dt">constants=</span>const)</a>
+<a class="sourceLine" id="cb1-53" title="53">cBounded   &lt;-<span class="st"> </span><span class="kw">compileNimble</span>(rBounded)</a>
+<a class="sourceLine" id="cb1-54" title="54">cUnbounded &lt;-<span class="st"> </span><span class="kw">compileNimble</span>(rUnbounded)</a>
+<a class="sourceLine" id="cb1-55" title="55"></a>
+<a class="sourceLine" id="cb1-56" title="56"><span class="co">## Lists of nodes</span></a>
+<a class="sourceLine" id="cb1-57" title="57">stochNodesB   =<span class="st"> </span>rBounded<span class="op">$</span><span class="kw">getNodeNames</span>(<span class="dt">stochOnly=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-58" title="58">stochNodesU   =<span class="st"> </span>rUnbounded<span class="op">$</span><span class="kw">getNodeNames</span>(<span class="dt">stochOnly=</span><span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb1-59" title="59">monitorNodes  =<span class="st"> </span>stochNodesB</a>
+<a class="sourceLine" id="cb1-60" title="60">distributions =<span class="st"> </span><span class="kw">substring</span>(rBounded<span class="op">$</span><span class="kw">getDistribution</span>(monitorNodes), <span class="dv">2</span>, <span class="dv">99</span>)</a></code></pre></div>
+<p>Now we perform MCMC using NIMBLE’S univariate Metropolis-Hastings sampler. We use <code>B</code> to indicate <em>bounded</em> and <code>U</code> to indicate <em>unbounded</em>. The aim is to calculate the efficiency gain when sampling each distribution on the real line. This is done within a loop so that between-run variation can be accounted for. <em>Efficiency</em> is calculated as the ratio of effective sample size divided by time spent executing a given sampler. The efficiency <em>gain</em> is then calculated as the ratio (unbounded over bounded) of the efficiencies.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" title="1"><span class="co">## Configure an MCMC for each model</span></a>
+<a class="sourceLine" id="cb2-2" title="2">configureMcmcB =<span class="st"> </span><span class="kw">configureMCMC</span>(cBounded,   <span class="dt">monitors=</span>monitorNodes)</a>
+<a class="sourceLine" id="cb2-3" title="3">configureMcmcU =<span class="st"> </span><span class="kw">configureMCMC</span>(cUnbounded, <span class="dt">monitors=</span>monitorNodes)</a>
+<a class="sourceLine" id="cb2-4" title="4"></a>
+<a class="sourceLine" id="cb2-5" title="5"><span class="co">## Remove posterior predictive samplers &amp; replace with univariate Metropolis-Hastings</span></a>
+<a class="sourceLine" id="cb2-6" title="6">configureMcmcB<span class="op">$</span><span class="kw">removeSamplers</span>()</a>
+<a class="sourceLine" id="cb2-7" title="7">configureMcmcU<span class="op">$</span><span class="kw">removeSamplers</span>()</a>
+<a class="sourceLine" id="cb2-8" title="8"><span class="cf">for</span> (nd <span class="cf">in</span> stochNodesB) configureMcmcB<span class="op">$</span><span class="kw">addSampler</span>(nd)</a>
+<a class="sourceLine" id="cb2-9" title="9"><span class="cf">for</span> (nd <span class="cf">in</span> stochNodesU) configureMcmcU<span class="op">$</span><span class="kw">addSampler</span>(nd)</a>
+<a class="sourceLine" id="cb2-10" title="10"><span class="kw">print</span>(configureMcmcB)</a>
+<a class="sourceLine" id="cb2-11" title="11"><span class="kw">print</span>(configureMcmcU)</a>
+<a class="sourceLine" id="cb2-12" title="12"></a>
+<a class="sourceLine" id="cb2-13" title="13"><span class="co">## Build &amp; compile the MCMCs</span></a>
+<a class="sourceLine" id="cb2-14" title="14">rMcmcB &lt;-<span class="st"> </span><span class="kw">buildMCMC</span>(configureMcmcB)</a>
+<a class="sourceLine" id="cb2-15" title="15">rMcmcU &lt;-<span class="st"> </span><span class="kw">buildMCMC</span>(configureMcmcU)</a>
+<a class="sourceLine" id="cb2-16" title="16">cMcmcB &lt;-<span class="st"> </span><span class="kw">compileNimble</span>(rMcmcB)</a>
+<a class="sourceLine" id="cb2-17" title="17">cMcmcU &lt;-<span class="st"> </span><span class="kw">compileNimble</span>(rMcmcU)</a>
+<a class="sourceLine" id="cb2-18" title="18"></a>
+<a class="sourceLine" id="cb2-19" title="19"><span class="co">## The following loop takes approximately 10 minutes.</span></a>
+<a class="sourceLine" id="cb2-20" title="20"><span class="co">## You can optionally skip running the loop and load the data object efficiencyGain from the package.</span></a>
+<a class="sourceLine" id="cb2-21" title="21"><span class="co">## Or simply just reduce nSamples and nReps.</span></a>
+<a class="sourceLine" id="cb2-22" title="22">runLoop =<span class="st"> </span><span class="ot">FALSE</span></a>
+<a class="sourceLine" id="cb2-23" title="23"><span class="cf">if</span> (runLoop) {</a>
+<a class="sourceLine" id="cb2-24" title="24">  nSamples =<span class="st"> </span><span class="fl">1E5</span></a>
+<a class="sourceLine" id="cb2-25" title="25">  nReps    =<span class="st"> </span><span class="dv">111</span></a>
+<a class="sourceLine" id="cb2-26" title="26">  efficiencyGain =<span class="st"> </span><span class="kw">matrix</span>(<span class="dv">0</span>, <span class="dt">ncol=</span><span class="kw">length</span>(monitorNodes), <span class="dt">nrow=</span>nReps)</a>
+<a class="sourceLine" id="cb2-27" title="27">  <span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span>nReps) {</a>
+<a class="sourceLine" id="cb2-28" title="28">    <span class="kw">print</span>(ii)</a>
+<a class="sourceLine" id="cb2-29" title="29">    <span class="co">## Run MCMC</span></a>
+<a class="sourceLine" id="cb2-30" title="30">    cMcmcB<span class="op">$</span><span class="kw">run</span>(<span class="dt">niter=</span>nSamples, <span class="dt">time =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb2-31" title="31">    cMcmcU<span class="op">$</span><span class="kw">run</span>(<span class="dt">niter=</span>nSamples, <span class="dt">time =</span> <span class="ot">TRUE</span>)</a>
+<a class="sourceLine" id="cb2-32" title="32">    <span class="co">## Extract samples</span></a>
+<a class="sourceLine" id="cb2-33" title="33">    samplesB =<span class="st"> </span><span class="kw">as.matrix</span>(cMcmcB<span class="op">$</span>mvSamples)</a>
+<a class="sourceLine" id="cb2-34" title="34">    samplesU =<span class="st"> </span><span class="kw">as.matrix</span>(cMcmcU<span class="op">$</span>mvSamples)</a>
+<a class="sourceLine" id="cb2-35" title="35">    <span class="co">## Calculate effective sample size</span></a>
+<a class="sourceLine" id="cb2-36" title="36">    (<span class="dt">effB =</span> <span class="kw">effectiveSize</span>(samplesB))</a>
+<a class="sourceLine" id="cb2-37" title="37">    (<span class="dt">effU =</span> <span class="kw">effectiveSize</span>(samplesU))</a>
+<a class="sourceLine" id="cb2-38" title="38">    <span class="co">## Time spent in each sampler</span></a>
+<a class="sourceLine" id="cb2-39" title="39">    timeB =<span class="st"> </span>cMcmcB<span class="op">$</span><span class="kw">getTimes</span>()</a>
+<a class="sourceLine" id="cb2-40" title="40">    timeU =<span class="st"> </span>cMcmcU<span class="op">$</span><span class="kw">getTimes</span>()</a>
+<a class="sourceLine" id="cb2-41" title="41">    <span class="co">## Calculate sampling efficiency</span></a>
+<a class="sourceLine" id="cb2-42" title="42">    (<span class="dt">efficiencyB =</span> effB <span class="op">/</span><span class="st"> </span>timeB)</a>
+<a class="sourceLine" id="cb2-43" title="43">    (<span class="dt">efficiencyU =</span> effU <span class="op">/</span><span class="st"> </span>timeU)</a>
+<a class="sourceLine" id="cb2-44" title="44">    <span class="co">## Calculate efficiencyGain</span></a>
+<a class="sourceLine" id="cb2-45" title="45">    (efficiencyGain[ii,] =<span class="st"> </span>efficiencyU <span class="op">/</span><span class="st"> </span>efficiencyB)</a>
+<a class="sourceLine" id="cb2-46" title="46">  }</a>
+<a class="sourceLine" id="cb2-47" title="47">  <span class="kw">colnames</span>(efficiencyGain) =<span class="st"> </span>distributions</a>
+<a class="sourceLine" id="cb2-48" title="48">  <span class="co">## write.table(efficiencyGain, file=here::here(&quot;nimbleNoBounds/data/efficiencyGain.csv&quot;), sep=&quot;;&quot;, row.names = FALSE)</span></a>
+<a class="sourceLine" id="cb2-49" title="49">}</a></code></pre></div>
+<p>Finally, some box-plots of the efficiency gain per distribution, annotated with the with mean and 95% CIs.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="kw">data</span>(efficiencyGain, <span class="dt">package=</span><span class="st">&quot;nimbleNoBounds&quot;</span>)</a>
+<a class="sourceLine" id="cb3-2" title="2"></a>
+<a class="sourceLine" id="cb3-3" title="3"><span class="kw">boxplot</span>(<span class="kw">log10</span>(efficiencyGain), <span class="dt">ylab=</span><span class="st">&quot;log10 Efficiency Gain&quot;</span>, <span class="dt">ylim=</span><span class="kw">c</span>(<span class="op">-</span><span class="dv">1</span>, <span class="dv">4</span>))</a>
+<a class="sourceLine" id="cb3-4" title="4"><span class="kw">abline</span>(<span class="dt">h=</span><span class="dv">0</span>)</a>
+<a class="sourceLine" id="cb3-5" title="5"><span class="cf">for</span> (ii <span class="cf">in</span> <span class="dv">1</span><span class="op">:</span><span class="kw">length</span>(distributions)) {</a>
+<a class="sourceLine" id="cb3-6" title="6">  <span class="kw">text</span>(ii, <span class="fl">-0.7</span>, <span class="kw">paste</span>(<span class="st">&quot;x&quot;</span>, <span class="kw">signif</span>(<span class="kw">mean</span>(efficiencyGain[,distributions[ii]]), <span class="dv">3</span>)))</a>
+<a class="sourceLine" id="cb3-7" title="7">  <span class="kw">text</span>(ii, <span class="fl">-0.9</span>, <span class="kw">paste0</span>(<span class="st">&quot;(&quot;</span>, <span class="kw">paste</span>(<span class="kw">signif</span>(<span class="kw">quantile</span>(efficiencyGain[,distributions[ii]], <span class="kw">c</span>(<span class="fl">0.025</span>, <span class="fl">0.975</span>)), <span class="dv">3</span>), <span class="dt">collapse=</span><span class="st">&quot; - &quot;</span>), <span class="st">&quot;)&quot;</span>), <span class="dt">cex=</span><span class="fl">0.7</span>)</a>
+<a class="sourceLine" id="cb3-8" title="8">}</a></code></pre></div>
+<p><img src="data:image/png;base64,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" /><!-- --></p>
+<p>These results show that:</p>
+<ol style="list-style-type: decimal">
+<li>large efficiency gains can be obtained from sampling on the real line.</li>
+<li>the size of the efficiency gain depends on the target distribution being sampled.</li>
+<li>computational overhead arising from the transformations is negligible compared to potential efficiency gains from sampling on the unbounded real line.</li>
+</ol>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
